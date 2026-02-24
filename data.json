@@ -1,0 +1,22 @@
+{
+  "siteTitle": "Storm_Geeker_Backup",
+  "siteSubtitle": "影视飓风 & 极客湾 补档下载",
+  "repoUrl": "https://github.com/Maicy0609/Storm_Geeker_Backup",
+  "proxyPrefix": "https://hk.gh-proxy.org/",
+  "videos": [
+    {
+      "id": "video_quality_2024",
+      "title": "【影视飓风补档】清晰度不如4年前，视频变糊是你的错觉吗",
+      "meta": "2K (2560×1440) | 29.97fps | MP4",
+      "filename": "video_get_bad_is_your_problem_2k_29.97fps.mp4",
+      "date": "2024-10"
+    },
+    {
+      "id": "phone_cheating_test",
+      "title": "手机游戏性能大横评：厂商作弊太疯狂！",
+      "meta": "2K (2560×1440) | 59.94fps | MP4",
+      "filename": "mobile_phone_grand_review_test_but_cheat.mp4",
+      "date": "2024-09"
+    }
+  ]
+}
