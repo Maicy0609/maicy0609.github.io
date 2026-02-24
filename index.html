@@ -37,7 +37,7 @@
         
         .repo-link {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .repo-link a {
@@ -51,6 +51,52 @@
         .repo-link a:hover {
             text-decoration: underline;
             opacity: 1;
+        }
+        
+        /* 镜像源选择器样式 */
+        .mirror-selector {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .mirror-selector label {
+            color: #8b949e;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .mirror-selector select {
+            background: #0d1117;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .mirror-selector select:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        
+        .mirror-status {
+            font-size: 0.85rem;
+            color: #238636;
+            margin-left: auto;
+        }
+        
+        .mirror-status.error {
+            color: #f85149;
         }
         
         .video-card {
@@ -80,7 +126,7 @@
             flex-wrap: wrap;
         }
         
-        a {
+        a, button {
             text-decoration: none;
             padding: 10px 16px;
             border-radius: 6px;
@@ -92,7 +138,7 @@
             cursor: pointer;
         }
         
-        a:hover {
+        a:hover, button:hover {
             opacity: 0.8;
         }
         
@@ -135,66 +181,144 @@
         <a id="repoLink" href="#" target="_blank">🔗 项目仓库地址</a>
     </div>
 
+    <!-- 镜像源选择器 -->
+    <div class="mirror-selector">
+        <label for="mirrorSelect">🚀 镜像源：</label>
+        <select id="mirrorSelect">
+            <option value="https://hk.gh-proxy.org/">hk.gh-proxy.org（推荐）</option>
+            <option value="https://gh-proxy.org/">gh-proxy.org</option>
+            <option value="https://v6.gh-proxy.org/">v6.gh-proxy.org</option>
+            <option value="https://cdn.gh-proxy.org/">cdn.gh-proxy.org</option>
+            <option value="https://edgeone.gh-proxy.org/">edgeone.gh-proxy.org</option>
+        </select>
+        <span class="mirror-status" id="mirrorStatus">准备就绪</span>
+    </div>
+
     <div id="videoList">
         <div class="loading">正在加载资源列表...</div>
     </div>
 
     <div class="tip" id="tipBox" style="display: none;">
-        <strong>提示：</strong>如果代理下载失效，请使用原链接（可能需要科学上网）。点击按钮即可开始下载，若浏览器直接播放视频，可右键选择"另存为"。
+        <strong>提示：</strong>如果当前镜像源下载缓慢或失败，请尝试切换其他镜像源。点击按钮即可开始下载，若浏览器直接播放视频，可右键选择"另存为"。
     </div>
 
     <script>
-        const jsonUrl = 'https://gh-proxy.org/https://github.com/Maicy0609/maicy0609.github.io/blob/main/data.json';
+        // GitHub 原始 JSON 地址（不需要镜像前缀，后面会动态添加）
+        const githubRawUrl = 'https://raw.githubusercontent.com/Maicy0609/maicy0609.github.io/main/data.json';
         
-        fetch(jsonUrl)
-            .then(response => {
-                if (!response.ok) throw new Error('加载失败');
-                return response.json();
-            })
-            .then(data => {
-                // 填充头部信息
-                document.getElementById('siteTitle').textContent = data.siteTitle || 'Storm_Geeker_Backup';
-                document.getElementById('siteSubtitle').textContent = data.siteSubtitle || '';
-                document.getElementById('repoLink').href = data.repoUrl || '#';
+        let currentData = null;
+        
+        // 获取当前选中的镜像源
+        function getCurrentMirror() {
+            return document.getElementById('mirrorSelect').value;
+        }
+        
+        // 构建 JSON URL（镜像源 + raw 地址）
+        function getJsonUrl(mirror) {
+            return mirror + githubRawUrl;
+        }
+        
+        // 加载数据
+        async function loadData() {
+            const mirror = getCurrentMirror();
+            const statusEl = document.getElementById('mirrorStatus');
+            const container = document.getElementById('videoList');
+            
+            statusEl.textContent = '加载中...';
+            statusEl.className = '';
+            container.innerHTML = '<div class="loading">正在通过镜像源加载...</div>';
+            
+            try {
+                const response = await fetch(getJsonUrl(mirror));
+                if (!response.ok) throw new Error('HTTP ' + response.status);
                 
-                // 生成视频列表
-                const container = document.getElementById('videoList');
-                container.innerHTML = '';
+                const data = await response.json();
+                currentData = data;
                 
-                if (!data.videos || data.videos.length === 0) {
-                    container.innerHTML = '<div class="error">暂无资源</div>';
-                    return;
-                }
+                // 保存选择到本地存储，下次自动使用
+                localStorage.setItem('selectedMirror', mirror);
                 
-                data.videos.forEach(video => {
-                    const proxyUrl = (data.proxyPrefix || '') + 
-                        `${data.repoUrl}/releases/download/%E8%A1%A5%E6%A1%A3/${video.filename}`;
-                    const directUrl = `${data.repoUrl}/releases/download/%E8%A1%A5%E6%A1%A3/${video.filename}`;
-                    
-                    const card = document.createElement('div');
-                    card.className = 'video-card';
-                    card.innerHTML = `
-                        <div class="video-title">${video.title}</div>
-                        <div class="video-meta">${video.meta}</div>
-                        <div class="button-group">
-                            <a href="${proxyUrl}" class="btn-primary" download>
-                               ⬇️ 代理加速下载（推荐）
-                            </a>
-                            <a href="${directUrl}" class="btn-secondary" download>
-                               原链接（备用）
-                            </a>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
+                statusEl.textContent = '连接正常';
+                statusEl.className = '';
                 
-                document.getElementById('tipBox').style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('videoList').innerHTML = 
-                    '<div class="error">加载失败，请刷新页面重试<br><small>' + error.message + '</small></div>';
+                renderPage(data, mirror);
+            } catch (error) {
+                console.error('加载失败:', error);
+                statusEl.textContent = '连接失败';
+                statusEl.className = 'error';
+                container.innerHTML = `
+                    <div class="error">
+                        通过当前镜像源加载失败<br>
+                        <small>${error.message}</small><br>
+                        <button onclick="loadData()" style="margin-top: 10px;" class="btn-primary">重试</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // 渲染页面
+        function renderPage(data, mirror) {
+            // 填充头部信息
+            document.getElementById('siteTitle').textContent = data.siteTitle || 'Storm_Geeker_Backup';
+            document.getElementById('siteSubtitle').textContent = data.siteSubtitle || '';
+            document.getElementById('repoLink').href = data.repoUrl || '#';
+            
+            // 生成视频列表
+            const container = document.getElementById('videoList');
+            container.innerHTML = '';
+            
+            if (!data.videos || data.videos.length === 0) {
+                container.innerHTML = '<div class="error">暂无资源</div>';
+                return;
+            }
+            
+            // 构建下载链接（使用当前选中的镜像源）
+            const repoPath = `${data.repoUrl}/releases/download/%E8%A1%A5%E6%A1%A3/`;
+            
+            data.videos.forEach(video => {
+                // 代理下载链接：镜像源 + GitHub releases 地址
+                const proxyUrl = mirror + repoPath + video.filename;
+                // 原链接：直接 GitHub releases 地址
+                const directUrl = repoPath + video.filename;
+                
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <div class="video-title">${video.title}</div>
+                    <div class="video-meta">${video.meta}</div>
+                    <div class="button-group">
+                        <a href="${proxyUrl}" class="btn-primary" download>
+                           ⬇️ 代理加速下载（推荐）
+                        </a>
+                        <a href="${directUrl}" class="btn-secondary" download>
+                           原链接（备用）
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
             });
+            
+            document.getElementById('tipBox').style.display = 'block';
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('mirrorSelect');
+            
+            // 恢复上次选择的镜像源
+            const savedMirror = localStorage.getItem('selectedMirror');
+            if (savedMirror && Array.from(select.options).some(opt => opt.value === savedMirror)) {
+                select.value = savedMirror;
+            }
+            
+            // 监听切换事件
+            select.addEventListener('change', function() {
+                loadData();
+            });
+            
+            // 初始加载
+            loadData();
+        });
     </script>
 </body>
 </html>
