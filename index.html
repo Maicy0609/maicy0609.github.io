@@ -116,51 +116,85 @@
             font-size: 0.85rem;
             color: #8b949e;
         }
+        
+        .loading, .error {
+            text-align: center;
+            padding: 40px;
+            color: #8b949e;
+        }
+        
+        .error {
+            color: #f85149;
+        }
     </style>
 </head>
 <body>
-    <h1>📥 Storm_Geeker_Backup</h1>
-    <div class="subtitle">影视飓风 & 极客湾 补档下载</div>
+    <h1>📥 <span id="siteTitle">Loading...</span></h1>
+    <div class="subtitle" id="siteSubtitle">-</div>
     <div class="repo-link">
-        <a href="https://github.com/Maicy0609/Storm_Geeker_Backup" target="_blank">🔗 项目仓库地址</a>
+        <a id="repoLink" href="#" target="_blank">🔗 项目仓库地址</a>
     </div>
 
-    <div class="video-card">
-        <div class="video-title">【影视飓风补档】清晰度不如4年前，视频变糊是你的错觉吗</div>
-        <div class="video-meta">2K (2560×1440) | 29.97fps | MP4</div>
-        <div class="button-group">
-            <a href="https://hk.gh-proxy.org/https://github.com/Maicy0609/Storm_Geeker_Backup/releases/download/%E8%A1%A5%E6%A1%A3/video_get_bad_is_your_problem_2k_29.97fps.mp4" 
-               class="btn-primary" 
-               download>
-               ⬇️ 代理加速下载（推荐）
-            </a>
-            <a href="https://github.com/Maicy0609/Storm_Geeker_Backup/releases/download/%E8%A1%A5%E6%A1%A3/video_get_bad_is_your_problem_2k_29.97fps.mp4" 
-               class="btn-secondary" 
-               download>
-               原链接（备用）
-            </a>
-        </div>
+    <div id="videoList">
+        <div class="loading">正在加载资源列表...</div>
     </div>
 
-    <div class="video-card">
-        <div class="video-title">手机游戏性能大横评：厂商作弊太疯狂！</div>
-        <div class="video-meta">2K (2560×1440) | 59.94fps | MP4</div>
-        <div class="button-group">
-            <a href="https://hk.gh-proxy.org/https://github.com/Maicy0609/Storm_Geeker_Backup/releases/download/%E8%A1%A5%E6%A1%A3/mobile_phone_grand_review_test_but_cheat.mp4" 
-               class="btn-primary" 
-               download>
-               ⬇️ 代理加速下载（推荐）
-            </a>
-            <a href="https://github.com/Maicy0609/Storm_Geeker_Backup/releases/download/%E8%A1%A5%E6%A1%A3/mobile_phone_grand_review_test_but_cheat.mp4" 
-               class="btn-secondary" 
-               download>
-               原链接（备用）
-            </a>
-        </div>
-    </div>
-
-    <div class="tip">
+    <div class="tip" id="tipBox" style="display: none;">
         <strong>提示：</strong>如果代理下载失效，请使用原链接（可能需要科学上网）。点击按钮即可开始下载，若浏览器直接播放视频，可右键选择"另存为"。
     </div>
+
+    <script>
+        const jsonUrl = 'https://gh-proxy.org/https://github.com/Maicy0609/maicy0609.github.io/blob/main/data.json';
+        
+        fetch(jsonUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('加载失败');
+                return response.json();
+            })
+            .then(data => {
+                // 填充头部信息
+                document.getElementById('siteTitle').textContent = data.siteTitle || 'Storm_Geeker_Backup';
+                document.getElementById('siteSubtitle').textContent = data.siteSubtitle || '';
+                document.getElementById('repoLink').href = data.repoUrl || '#';
+                
+                // 生成视频列表
+                const container = document.getElementById('videoList');
+                container.innerHTML = '';
+                
+                if (!data.videos || data.videos.length === 0) {
+                    container.innerHTML = '<div class="error">暂无资源</div>';
+                    return;
+                }
+                
+                data.videos.forEach(video => {
+                    const proxyUrl = (data.proxyPrefix || '') + 
+                        `${data.repoUrl}/releases/download/%E8%A1%A5%E6%A1%A3/${video.filename}`;
+                    const directUrl = `${data.repoUrl}/releases/download/%E8%A1%A5%E6%A1%A3/${video.filename}`;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.innerHTML = `
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-meta">${video.meta}</div>
+                        <div class="button-group">
+                            <a href="${proxyUrl}" class="btn-primary" download>
+                               ⬇️ 代理加速下载（推荐）
+                            </a>
+                            <a href="${directUrl}" class="btn-secondary" download>
+                               原链接（备用）
+                            </a>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                
+                document.getElementById('tipBox').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('videoList').innerHTML = 
+                    '<div class="error">加载失败，请刷新页面重试<br><small>' + error.message + '</small></div>';
+            });
+    </script>
 </body>
 </html>
