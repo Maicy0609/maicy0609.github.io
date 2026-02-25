@@ -1,8 +1,8 @@
 {
   "siteTitle": "Storm_Geeker_Backup",
-  "siteSubtitle": "影视飓风 & 极客湾 补档下载",
-  "repoUrl": "https://github.com/Maicy0609/Storm_Geeker_Backup",
-  "proxyPrefix": "https://hk.gh-proxy.org/",
+  "siteSubtitle": "科技圈视频补档下载",
+  "repoUrl": "https://github.com/Maicy0609/Storm_Geeker_Backup ",
+  "proxyPrefix": "https://hk.gh-proxy.org/ ",
   "videos": [
     {
       "id": "video_quality_2024",
@@ -17,6 +17,13 @@
       "meta": "2K (2560×1440) | 59.94fps | MP4",
       "filename": "mobile_phone_grand_review_test_but_cheat.mp4",
       "date": "2024-09"
+    },
+    {
+      "id": "ludashi_2025_review",
+      "title": "【Z极客】2025 年的鲁大师电脑版，究竟有多流氓",
+      "meta": "1080P (1920×1080) | 30.00fps | MP4",
+      "filename": "fuck_2025_ludashi_cause_ads.mp4",
+      "date": "2025-02"
     }
   ]
 }
