@@ -2,20 +2,40 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>BPM 测速助手</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body {
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      html, body {
+        margin: 0;
+        padding: 0;
         background-color: #0f0f0f;
         color: #e0e0e0;
         overflow: hidden;
         overscroll-behavior: none;
         -webkit-overflow-scrolling: touch;
         touch-action: none;
+        /* Use dvh for dynamic viewport height on mobile browsers */
+        height: 100dvh;
+        width: 100vw;
+        position: fixed;
+        top: 0;
+        left: 0;
       }
+      
+      #root {
+        height: 100%;
+        width: 100%;
+      }
+      
       /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 6px;
@@ -31,6 +51,7 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #555;
       }
+      
       /* Mobile sidebar slide-in animation */
       @keyframes slideIn {
         from {
@@ -43,18 +64,71 @@
       .animate-slide-in {
         animation: slideIn 0.25s ease-out forwards;
       }
-      /* Prevent text selection on mobile */
+      
+      /* Prevent text selection */
       .select-none {
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
       }
+      
+      /* Touch manipulation for better touch response */
+      .touch-manipulation {
+        touch-action: manipulation;
+      }
+      
+      /* Safe area padding for notched devices */
+      .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
+      
       /* Better touch targets */
       @media (max-width: 768px) {
         button, input, select, textarea {
-          font-size: 16px !important; /* Prevents iOS zoom on focus */
+          font-size: 16px !important;
         }
+        
+        /* Prevent pull-to-refresh */
+        body {
+          overscroll-behavior-y: contain;
+        }
+      }
+      
+      /* Input styling for mobile */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+      
+      /* Range slider styling */
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+      }
+      
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #6366f1;
+        cursor: pointer;
+        margin-top: -5px;
+      }
+      
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 6px;
+        background: #1f2937;
+        border-radius: 3px;
       }
     </style>
 
@@ -68,7 +142,7 @@
   }
 }
 </script>
-    <script type="module" crossorigin src="./assets/index-BLyVmyx_.js"></script>
+    <script type="module" crossorigin src="./assets/index-DQykfI-R.js"></script>
   </head>
   <body>
     <div id="root"></div>
